@@ -1,0 +1,6 @@
+// https://kovan.infura.io
+// https://mainnet.infura.io
+// 0x47B9Be7A0FC74Be3fccdECfC6d41d21D24D4a672
+// c7a933bf8981d80ea212bb59d9c5af3a8295a2216e94eadc3649e09c94824897
+
+//bgs 0x2c02ce7a9c7024e67b70e9d5b353685191f4b56e

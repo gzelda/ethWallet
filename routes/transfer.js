@@ -3,32 +3,14 @@ var Web3 = require('web3');
 var Tx = require('ethereumjs-tx');
 var router = express.Router();
 var bodyParser = require('body-parser');
+var db = require('./db.js');
+var respJson = require('./responseJson.js');
 
 
-
-/* GET home page. */
-router.post('/', function(req, resp, next) {
-
-	var UID = req.body.UID;
-	var fromAddress =  req.body.fromAddress;
-	var toAddress = req.body.toAddress;
-	var amout = req.body.amout;
-	var type = req.body.type;
-
-	// 引入ethereumjs-tx
-
-	web3 = new Web3(new Web3.providers.HttpProvider("https://kovan.infura.io"));
-	// 以太币转账    
-	// 先获取当前账号交易的nonce
-	var fromAddress = "0x47B9Be7A0FC74Be3fccdECfC6d41d21D24D4a672"
-	var fromPri = "c7a933bf8981d80ea212bb59d9c5af3a8295a2216e94eadc3649e09c94824897"
-	//10e17是一个以太币
-	//
-	var amount = 10e16
-
-	var toAddress = '0x0bC432D9AEB839278457406Ddae25A6C41201e13'
+function tranferETH(web3,fromAddress,fromPri,toAddress,amount,callback){
 	var gaslimit = 99000
 	var gasprice = 10e9
+	console.log(web3,fromAddress,fromPri,toAddress,amount);
 	web3.eth.getTransactionCount(fromAddress, web3.eth.defaultBlock.pending).then(function(nonce){
 	    
 	    // 获取交易数据
@@ -61,13 +43,59 @@ router.post('/', function(req, resp, next) {
 	    web3.eth.sendSignedTransaction('0x' + serializedTx.toString('hex'), function(err, hash) {
 	        if (!err) {
 	            console.log(hash);
-	            resp.send(hash);
+	            callback(hash);
 	        } else {
 	            console.error(err);
-	            resp.send(err);
+	            callback("error");
 	        }
 	    });
 	});
+}
+
+/* GET home page. */
+router.post('/', function(req, resp, next) {
+
+	var UID = req.body.UID;
+	var fromAddress =  req.body.fromAddress;
+	var toAddress = req.body.toAddress;
+	var amount = req.body.amount;
+	var type = req.body.type;
+	web3 = new Web3(new Web3.providers.HttpProvider("https://kovan.infura.io"));
+
+	db.getETHPri(UID,function(data){
+		var priKey = data;
+		if (type == 0){
+			tranferETH(web3,fromAddress,priKey,toAddress,amount*1.0*10e17,function(data){
+				if (data != "error"){
+					var respData = respJson.generateJson(1,0,"");
+					resp.send(respData);
+				}
+			})
+			
+		}
+		else if (type == 1){
+			var respData = respJson.generateJson(1,0,"");
+			//0x4743dd93d571c666a9153c54b136e10541e8d622 kovan bgs 合约地址
+		}
+		else{
+			var respData = respJson.generateJson(0,0,"");
+			resp.send(respData);
+		}
+	})
+
+	// 引入ethereumjs-tx
+
+	
+	// 以太币转账    
+	// 先获取当前账号交易的nonce
+	//var fromAddress = "0x47B9Be7A0FC74Be3fccdECfC6d41d21D24D4a672"
+	//var fromPri = "c7a933bf8981d80ea212bb59d9c5af3a8295a2216e94eadc3649e09c94824897"
+	//10e17是一个以太币
+	//
+	//var amount = 10e16
+
+	//var toAddress = '0x0bC432D9AEB839278457406Ddae25A6C41201e13'
+	
 
 
 });

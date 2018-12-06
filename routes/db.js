@@ -1,106 +1,141 @@
 var mysql  = require('mysql');
 
-var connection = mysql.createConnection({
-host     : 'localhost',
-user     : 'root',
-password : 'root',
-database : 'superWallet'
+
+var pool = mysql.createPool({
+    host: 'localhost',
+    user: 'root',
+    password: 'root',
+    database: 'superWallet'
 });
 
-// 查找
-function select() {
-    connection.connect(function (err) {
-        if (err) {
-            console.error('error connecting:' + err.stack)
+
+function SQLquery(sql,param,callback){
+	pool.getConnection(function(err,conn){
+        if(err){
+        	console.log("SQLerr")
+            callback("error");
+        }else{
+        	console.log("SQLsuccess")
+            conn.query(sql,param,function(qerr,vals,fields){
+                //释放连接
+                conn.release();
+                //事件驱动回调
+                //console.log(qerr,vals,fields)
+                callback(vals);
+            });
         }
-        console.log('connected as id ' + connection.threadId);
-    })
-
-    connection.query('SELECT * FROM demo', function (error, results, fields) {
-        if (error) throw error;
-        console.log('The solution is:', results);
     });
-    connection.end();
-}
-
-//添加
-function add() {
-    let post = {
-        id: 1,
-        name: 'Hello MySql',
-        age: 20,
-        time: Date.now(),
-        temp: 'deom'
-    };
-    let query = connection.query("INSERT INTO demo SET ?", post, function (error, results, fields) {
-        if (error) throw error;
-    })
-    console.log(query.sql); //INSERT INTO posts 'id'=1, 'title'='Hello MySQL'
+	/*
+	connection.query(sql, param, function (error, results, fields) {
+        if (error) {
+        	console.log("error");
+        	callback("error");
+        }
+        else{
+        	console.log('sql:' + results);
+        	callback(results);
+        }
+        
+    });
+    */
 }
 
 //修改
-function updateETHINFO(UID,address,priKey) {
+function updateETHINFO (UID,address,priKey,callback) {
 
-    connection.connect(function (err) {
-        if (err) {
-            console.error('error connecting:' + err.stack);
-        }
-        console.log('connected as id ' + connection.threadId);
-    });
-
-    var sqlPriKey = 'UPDATE ETHPriKeyWarehouse set priKey= ? where UID = ?';
+    
+    var sqlPriKey = 'UPDATE ETHPriKeyWarehouse set priKey= ? where UID = ? ;';
     var sqlAddress = 'UPDATE ETHTOKEN set ETHAddress = ? where UID = ?';
     ///需要插入多次
-
-    connection.query(sql, [priKey, UID], function (error, results, fields) {
+    /*
+    connection.query(sqlPriKey, [priKey, UID], function (error, results, fields) {
         if (error) throw error;
-        console.log('changed:' + results.changeRows + 'rows');
+        console.log('sql:' + results);
     });
 
-    connection.query(sql, [address, UID], function (error, results, fields) {
+    connection.query(sqlAddress, [address, UID], function (error, results, fields) {
         if (error) throw error;
-        console.log('changed:' + results.changeRows + 'rows');
+        console.log('sql:' + results);
     });
-    connection.end();
+    */
+    var res1 = SQLquery(sqlPriKey,[priKey, UID],function(data){
+    	console.log('data:' + data);
+    	if (data!="error"){
+    		var res2 = SQLquery(sqlAddress,[address, UID],function(data){
+    			console.log(data);
+    			if (data!="error"){
+    				callback("ok");	
+    			}
+    			else
+    				callback("error");
+    		});
+    	}
+    	else{
+    		callback("error");	
+    	}
+    	
+    });
 }
 
+
 //获取address
-function getETHaddress(UID){
-	connection.connect(function (err) {
-        if (err) {
-            console.error('error connecting:' + err.stack);
-        }
-        console.log('connected as id ' + connection.threadId);
-    });
+function getETHaddress (UID,callback){
+	
 	var sql = 'SELECT ETHAddress FROM ETHTOKEN WHERE UID = ?';
-	var address = "";
+
+	
+	SQLquery(sql,[UID],function(data){
+		console.log('data:' + data);
+		if (data!= "error"){
+
+			callback(data[0].ETHAddress);
+		}
+	})
+
+	/*
 	connection.query(sql, [UID], function (error, result) {
-        if (error) throw error;
-        console.log('changed:' + result.changeRows + 'rows');
-        return result;
+        if (error) {
+        	console.log(error);
+			throw error;
+        }
+        else{
+        	console.log('sql:' + result[0].ETHAddress);
+	        //console.log(UID + 'gtygtygty(((((((((('+JSON.stringfy(result))
+	        //result;
+        	callback(result[0].ETHAddress);
+        }
+        
     });
-    
+
+	connection.end();
+    */
 }
 
+
 //获取address
-function getETHPri(UID){
-	connection.connect(function (err) {
-        if (err) {
-            console.error('error connecting:' + err.stack);
-        }
-        console.log('connected as id ' + connection.threadId);
-    });
+function getETHPri(UID,callback){
+
 	var sql = 'SELECT priKey FROM ETHPriKeyWarehouse WHERE UID = ?';
+	/*
 	connection.query(sql, [UID], function (error, result) {
         if (error) throw error;
-        console.log('changed:' + result.changeRows + 'rows');
-        return result;
+        console.log('sql:' + result);
+        callback(result[0].priKey);
     });
+    */
+
+    SQLquery(sql,[UID],function(data){
+		console.log('data:' + data);
+		if (data!= "error"){
+
+			callback(data[0].priKey);
+		}
+	})
     
 }
 
 module.exports = {
- updateETHINFO,
  getETHPri,
- getETHaddress
+ getETHaddress,
+ updateETHINFO
 }

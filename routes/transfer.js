@@ -3,8 +3,9 @@ var Web3 = require('web3');
 var Tx = require('ethereumjs-tx');
 var router = express.Router();
 var bodyParser = require('body-parser');
-var db = require('./db.js');
-var respJson = require('./responseJson.js');
+var db = require('./utils/db.js');
+var respJson = require('./utils/responseJson.js');
+var chainConfig = require('./utils/config.js')
 
 
 function tranferETH(web3,fromAddress,fromPri,toAddress,amount,callback){
@@ -60,7 +61,7 @@ router.post('/', function(req, resp, next) {
 	var toAddress = req.body.toAddress;
 	var amount = req.body.amount;
 	var type = req.body.type;
-	web3 = new Web3(new Web3.providers.HttpProvider("https://kovan.infura.io"));
+	web3 = new Web3(new Web3.providers.HttpProvider(chainConfig.chainServer));
 
 	db.getETHPri(UID,function(data){
 		var priKey = data;

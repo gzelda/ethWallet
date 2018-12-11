@@ -4,7 +4,7 @@ var router = express.Router();
 var bodyParser = require('body-parser');
 var db = require('./utils/db.js');
 var respJson = require('./utils/responseJson.js');
-
+var chainConfig = require('./utils/config.js')
 /* GET home page. */
 router.post('/', function(req, resp, next) {
 

@@ -43,8 +43,8 @@ function SQLquery(sql,param,callback){
 //修改
 function updateETHINFO (UID,address,priKey,callback) {
 
-    
-    var sqlPriKey = 'UPDATE ETHPriKeyWarehouse set priKey= ? where UID = ? ;';
+    console.log(UID,address,priKey);
+    var sqlPriKey = 'INSERT INTO ETHPriKeyWarehouse(UID,priKey) values(?,?)';
     var sqlAddress = 'UPDATE ETHTOKEN set ETHAddress = ? where UID = ?';
     ///需要插入多次
     /*
@@ -58,7 +58,7 @@ function updateETHINFO (UID,address,priKey,callback) {
         console.log('sql:' + results);
     });
     */
-    var res1 = SQLquery(sqlPriKey,[priKey, UID],function(data){
+    var res1 = SQLquery(sqlPriKey,[UID, priKey],function(data){
     	console.log('data:' + data);
     	if (data!="error"){
     		var res2 = SQLquery(sqlAddress,[address, UID],function(data){

@@ -11,7 +11,7 @@ var chainConfig = require('./utils/config.js')
 function tranferETH(web3,fromAddress,fromPri,toAddress,amount,callback){
 	var gaslimit = 99000
 	var gasprice = 10e9
-	console.log(web3,fromAddress,fromPri,toAddress,amount);
+	//console.log(web3,fromAddress,fromPri,toAddress,amount);
 	web3.eth.getTransactionCount(fromAddress, web3.eth.defaultBlock.pending).then(function(nonce){
 	    
 	    // 获取交易数据
@@ -44,7 +44,13 @@ function tranferETH(web3,fromAddress,fromPri,toAddress,amount,callback){
 	    web3.eth.sendSignedTransaction('0x' + serializedTx.toString('hex'), function(err, hash) {
 	        if (!err) {
 	            console.log(hash);
-	            callback(hash);
+	            web3.eth.getTransactionReceipt(hash)
+	            .then(function(data){
+	            		console.log(data); 
+	            		callback(hash);
+	            	  });
+
+	            
 	        } else {
 	            console.error(err);
 	            callback("error");
@@ -88,20 +94,25 @@ function tranferBGS(web3,fromAddress,fromPri,toAddress,amount,callback){
 
 	    // 序列化
 	    var serializedTx = '0x' + tx.serialize().toString('hex');
-
-	    web3.eth.sendSignedTransaction(serializedTx).on('transactionHash',function (txHash) {
+	    console.log("准备发送");
+	    web3.eth.sendSignedTransaction(serializedTx).then(function(receipt){
+	    	console.log(receipt);
+	    	callback(receipt);
+	    })
+	    /*
+	    .on('transactionHash',function (txHash) {
 
 		}).on('receipt', function (receipt) {
-		    console.log("receipt:" + receipt);
+		    console.log("receipt:" + JSON.stringfy(receipt));
 		    callback('ok');
 		}).on('confirmation', function (confirmationNumber, receipt) {
 			//console.log("receipt:" + receipt);
 		    //console.log("confirmationNumber:" + confirmationNumber + " receipt:" + receipt);
 		}).on('error', function (error) {
-			console.log("error:" + receipt);
+			console.log("error:" + JSON.stringfy(receipt));
 			callback('error');
 		});
-
+		*/
 	});
 }
 
@@ -115,38 +126,47 @@ router.post('/', function(req, resp, next) {
 	var type = req.body.type;
 	web3 = new Web3(new Web3.providers.HttpProvider(chainConfig.chainServer));
 
-	db.getETHPri(UID,function(data){
-		var priKey = data;
-		if (type == 0){
-			tranferETH(web3,fromAddress,priKey,toAddress,amount*1.0*10e17,function(data){
-				if (data != "error"){
-					var respData = respJson.generateJson(1,0,"");
-					resp.send(respData);
-				}
-				else{
-					var respData = respJson.generateJson(0,0,"转账失败");
-					resp.send(respData);
-				}
-			})
-			
+	db.getETHKey(UID,function(data){
+		var priKey = data.priKey;
+		if (data == "error"){
+			resp.send(respJson.generateJson(0,0,"数据库查询失败"));
 		}
-		else if (type == 1){
-			tranferBGS(web3,fromAddress,priKey,toAddress,amount*1.0*10e3,function(data){
-				if (data != "error"){
-					var respData = respJson.generateJson(1,0,"");
-					resp.send(respData);
-				}
-				else{
-					var respData = respJson.generateJson(0,0,"转账失败");
-					resp.send(respData);
-				}
-			})
-			//0x4743dd93d571c666a9153c54b136e10541e8d622 kovan bgs 合约地址
+		else if (data.address != fromAddress){
+			resp.send(respJson.generateJson(0,0,"用户地址与数据库不一致"));
 		}
 		else{
-			var respData = respJson.generateJson(0,0,"token类型传入错误");
-			resp.send(respData);
+			if (type == 0){
+				tranferETH(web3,fromAddress,priKey,toAddress,amount*1.0*10e17,function(data){
+					if (data != "error"){
+						var respData = respJson.generateJson(1,0,"请求成功",{txHash:data});
+						resp.send(respData);
+					}
+					else{
+						var respData = respJson.generateJson(0,0,"转账失败");
+						resp.send(respData);
+					}
+				})			
+			}
+			else if (type == 1){
+				tranferBGS(web3,fromAddress,priKey,toAddress,amount*1.0*10e3,function(data){
+					if (data != "error"){
+						var respData = respJson.generateJson(1,0,"请求成功",{txHash:data});
+						resp.send(respData);
+					}
+					else{
+						var respData = respJson.generateJson(0,0,"转账失败");
+						resp.send(respData);
+					}
+				})
+				//0x4743dd93d571c666a9153c54b136e10541e8d622 kovan bgs 合约地址
+			}
+			else{
+				var respData = respJson.generateJson(0,0,"token类型传入错误");
+				resp.send(respData);
+			}
 		}
+		
+		
 	})
 
 	// 引入ethereumjs-tx

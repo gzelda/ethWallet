@@ -8,13 +8,14 @@
 	}
 }
 */
-function generateJson(code,status,data){
+function generateJson(code,status,message,data = ""){
 	var json = {
 		"code":code,
 		"status":status,
+		"message":message,
 		"data":data
 	};
-	
+	console.log("here",json);
 	return json;
 }
 

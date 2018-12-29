@@ -2,26 +2,34 @@ var mysql  = require('mysql');
 
 
 var pool = mysql.createPool({
-    host: 'localhost',
-    user: 'root',
-    password: 'root',
-    database: 'superWallet'
+    connectionLimit : 1000,
+    connectTimeout  : 60 * 60 * 1000,
+    aquireTimeout   : 60 * 60 * 1000,
+    timeout         : 60 * 60 * 1000,
+    host: 'nodeinstance.couot2aumoqo.us-east-2.rds.amazonaws.com',
+    user: 'tygavingavin',
+    password: 'tygavinmysql',
+    database: 'KeyWarehouse'
 });
 
 
 function SQLquery(sql,param,callback){
 	pool.getConnection(function(err,conn){
         if(err){
-        	console.log("SQLerr")
+        	console.log("SQLerr",err)
             callback("error");
         }else{
         	console.log("SQLsuccess")
             conn.query(sql,param,function(qerr,vals,fields){
                 //释放连接
-                conn.release();
+                pool.releaseConnection(conn);
                 //事件驱动回调
                 //console.log(qerr,vals,fields)
-                callback(vals);
+                if (vals == undefined || vals =="")
+                    callback("error");
+                else
+                    callback(vals);
+
             });
         }
     });
@@ -41,11 +49,10 @@ function SQLquery(sql,param,callback){
 }
 
 //修改
-function updateETHINFO (UID,address,priKey,callback) {
+function InsertETHKey (UID,address,priKey,callback) {
 
     console.log(UID,address,priKey);
-    var sqlPriKey = 'INSERT INTO ETHPriKeyWarehouse(UID,priKey) values(?,?)';
-    var sqlAddress = 'UPDATE ETHTOKEN set ETHAddress = ? where UID = ?';
+    var sqlPriKey = 'INSERT INTO ETHPriKeyWarehouse(UID,address,priKey) values(?,?,?)';
     ///需要插入多次
     /*
     connection.query(sqlPriKey, [priKey, UID], function (error, results, fields) {
@@ -58,17 +65,10 @@ function updateETHINFO (UID,address,priKey,callback) {
         console.log('sql:' + results);
     });
     */
-    var res1 = SQLquery(sqlPriKey,[UID, priKey],function(data){
+    var res = SQLquery(sqlPriKey,[UID, address,priKey],function(data){
     	console.log('data:' + data);
     	if (data!="error"){
-    		var res2 = SQLquery(sqlAddress,[address, UID],function(data){
-    			console.log(data);
-    			if (data!="error"){
-    				callback("ok");	
-    			}
-    			else
-    				callback("error");
-    		});
+            callback("ok");
     	}
     	else{
     		callback("error");	
@@ -80,16 +80,22 @@ function updateETHINFO (UID,address,priKey,callback) {
 
 //获取address
 function getETHaddress (UID,callback){
-	
-	var sql = 'SELECT ETHAddress FROM ETHTOKEN WHERE UID = ?';
+	console.log(UID);
+	var sql = 'SELECT address FROM ETHPriKeyWarehouse WHERE UID = ?';
 
 	
 	SQLquery(sql,[UID],function(data){
 		console.log('data:' + data);
+        console.log('data:' + data.length);
 		if (data!= "error"){
-
-			callback(data[0].ETHAddress);
+            if (data.length == 0){
+                callback("error");
+            }
+			callback(data[0].address);
 		}
+        else{
+            callback("error");
+        }
 	})
 
 	/*
@@ -126,16 +132,50 @@ function getETHPri(UID,callback){
 
     SQLquery(sql,[UID],function(data){
 		console.log('data:' + data);
-		if (data!= "error"){
-
-			callback(data[0].priKey);
-		}
+        if (data!= "error"){
+            if (data.length == 0){
+                callback("error");
+            }
+            callback(data[0].priKey);
+        }
+        else{
+            callback("error");
+        }
 	})
     
 }
 
+//获取address
+function getETHKey(UID,callback){
+
+    var sql = 'SELECT address,priKey FROM ETHPriKeyWarehouse WHERE UID = ?';
+    /*
+    connection.query(sql, [UID], function (error, result) {
+        if (error) throw error;
+        console.log('sql:' + result);
+        callback(result[0].priKey);
+    });
+    */
+
+    SQLquery(sql,[UID],function(data){
+        console.log('data:' + data);
+        if (data!= "error"){
+            if (data.length == 0){
+                callback("error");
+            }
+            callback(data[0]);
+        }
+        else{
+            callback("error");
+        }
+    })
+    
+}
+
+
 module.exports = {
  getETHPri,
  getETHaddress,
- updateETHINFO
+ InsertETHKey,
+ getETHKey
 }

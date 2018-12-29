@@ -15,12 +15,13 @@ router.post('/', function(req, resp, next) {
 	var newAddress = data.address
 	var newPriKey = data.privateKey
 	
-	db.updateETHINFO(UID,newAddress,newPriKey,function(data){
+	db.InsertETHKey(UID,newAddress,newPriKey,function(data){
 		if (data == "ok"){
-			resp.send(respJson.generateJson(1,0,""));
+			var result = {"address":newAddress};
+			resp.send(respJson.generateJson(1,0,"创建成功",result));
 		}
 		else{
-			resp.send(respJson.generateJson(0,0,""));
+			resp.send(respJson.generateJson(0,0,"创建失败"));
 		}
 	})
 

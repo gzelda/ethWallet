@@ -14,6 +14,7 @@ router.post('/', function(req, resp, next) {
 	var data = web3.eth.accounts.create()
 	var newAddress = data.address
 	var newPriKey = data.privateKey
+	console.log(newPriKey);
 	
 	db.InsertETHKey(UID,newAddress,newPriKey,function(data){
 		if (data == "ok"){

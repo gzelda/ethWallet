@@ -18,9 +18,6 @@ router.post('/', function(req, resp, next) {
 	// https://mainnet.infura.io
 	// 0x47B9Be7A0FC74Be3fccdECfC6d41d21D24D4a672
 	// c7a933bf8981d80ea212bb59d9c5af3a8295a2216e94eadc3649e09c94824897
-
-	//var currentAccount = "0x47B9Be7A0FC74Be3fccdECfC6d41d21D24D4a672";
-	//var cA2 = "0x0bC432D9AEB839278457406Ddae25A6C41201e13"
 	db.getETHaddress(UID,function(data){
 		if (data == "error"){
 			var respData = respJson.generateJson(0,0,"数据库查询失败");

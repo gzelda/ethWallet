@@ -8,10 +8,10 @@ var chainConfig = require('./utils/config.js');
 router.get('/', function(req, res, next) {
 
 	web3 = new Web3(new Web3.providers.HttpProvider(chainConfig.chainServer));
-	 web3.eth.getTransactionReceipt("0x57152b8b5bbba0ae23538bf860f23f8673619e88c57c586b499347d479db8ccc")
+	 web3.eth.getTransactionReceipt("0xd80dfafebb019cb01343d93f8c738726dd2cbce253b0fd4b078b9a7ad0fd9743")
 	            .then(function(data){
 	            		console.log(data); 
-	            		//callback(data);
+	            		res.send(data);
 	            	  });
 	/*
 	var gaslimit = 50000

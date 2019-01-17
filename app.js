@@ -9,6 +9,7 @@ var usersRouter = require('./routes/users');
 var getBalance = require('./routes/getBalance');
 var createAccount = require('./routes/createAccount');
 var transfer = require('./routes/transfer');
+var queryPending = require('./routes/queryPending');
 var app = express();
 
 // view engine setup
@@ -26,6 +27,7 @@ app.use('/eth/users', usersRouter);
 app.use('/eth/getBalance', getBalance);
 app.use('/eth/createAccount', createAccount);
 app.use('/eth/transfer', transfer);
+app.use('/eth/queryPending', queryPending);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

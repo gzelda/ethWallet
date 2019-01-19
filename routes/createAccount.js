@@ -13,7 +13,7 @@ router.post('/', function(req, resp, next) {
 	web3 = new Web3(new Web3.providers.HttpProvider(chainConfig.chainServer));
 	var data = web3.eth.accounts.create()
 	var newAddress = data.address
-	var newPriKey = data.privateKey
+	var newPriKey = data.privateKey.subString(2);
 	console.log(newPriKey);
 	
 	db.InsertETHKey(UID,newAddress,newPriKey,function(data){

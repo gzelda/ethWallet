@@ -52,7 +52,7 @@ router.post('/', function(req, res, next) {
 				respData.status = result;
 				res.send(respJson.generateJson(1,0,"请求成功",respData));
 			}
-			res.send(respJson.generateJson(0,0,"链端请求失败",err));
+			//res.send(respJson.generateJson(0,0,"链端请求失败",err));
 		});
     })(1);
     

@@ -1,7 +1,7 @@
 var constant = require('./constant.js');
 
-var chainServer = constant.chain.kovan;
-var bgsAddress = constant.contractAddress.bgsKovanAddress;
+var chainServer = constant.chain.mainnet;
+var bgsAddress = constant.contractAddress.bgsMainnetAddress;
 
 
 

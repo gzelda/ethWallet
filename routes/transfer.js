@@ -6,6 +6,7 @@ var bodyParser = require('body-parser');
 var db = require('./utils/db.js');
 var respJson = require('./utils/responseJson.js');
 var chainConfig = require('./utils/config.js')
+const EthereumTx = require('ethereumjs-tx')
 
 
 function tranferETH(web3,fromAddress,fromPri,toAddress,amount,gas,callback){
@@ -18,14 +19,17 @@ function tranferETH(web3,fromAddress,fromPri,toAddress,amount,gas,callback){
 		gaslimit = parseInt(gasTotal/gasprice);
 	console.log(gas)
 	console.log(gasprice,gaslimit);
-	console.log(fromAddress,fromPri,toAddress,amount);
+	
 	
 	web3.eth.getTransactionCount(fromAddress, web3.eth.defaultBlock.pending).then(function(nonce){
-	    
+	    console.log("！！！！！！！：",fromAddress,fromPri,toAddress,amount,nonce);
 	    // 获取交易数据
+	    //var newNonce = nonce + 1;
+
 	    var txData = {
 	        // nonce每次++，以免覆盖之前pending中的交易
-	        nonce: web3.utils.toHex(nonce++),
+	        nonce: '0x' + nonce.toString(16),
+	        //web3.utils.toHex(newNonce),
 	        // 设置gasLimit和gasPrice
 	        gasLimit: web3.utils.toHex(gaslimit),   
 	        gasPrice: web3.utils.toHex(gasprice),  
@@ -48,7 +52,11 @@ function tranferETH(web3,fromAddress,fromPri,toAddress,amount,gas,callback){
 	    var serializedTx = tx.serialize().toString('hex');
 	    //console.log("caoniyeye:",tx,serializedTx);
 	    //console.log("caoninainai:",serializedTx.toString('hex'));
-
+	    //console.log(EthereumTx(serializedTx).hash());
+	    var a = new EthereumTx(serializedTx).hash().toString('hex');
+	    var txHash = '0x'+a;
+	    console.log(txHash);
+	    console.log("准备发送");
 	    web3.eth.sendSignedTransaction('0x' + serializedTx.toString('hex'), function(err, hash) {
 	        if (!err) {
 	            console.log("receipt:",hash);
@@ -82,7 +90,7 @@ function tranferBGS(web3,fromAddress,fromPri,toAddress,amount,gas,callback){
 	    // 获取交易数据
 	    var txData = {
 	        // nonce每次++，以免覆盖之前pending中的交易
-	        nonce: web3.utils.toHex(nonce++),
+	        nonce: '0x' + nonce.toString(16),
 	        // 设置gasLimit和gasPrice
 	        gasLimit: web3.utils.toHex(gaslimit),   
 	        gasPrice: web3.utils.toHex(gasprice),  
@@ -103,9 +111,12 @@ function tranferBGS(web3,fromAddress,fromPri,toAddress,amount,gas,callback){
 	    tx.sign(privateKey);
 
 	    // 序列化
-	    var serializedTx = '0x' + tx.serialize().toString('hex');
+	    var serializedTx = tx.serialize().toString('hex');
+	    var a = new EthereumTx(serializedTx).hash().toString('hex');
+	    var txHash = '0x'+a;
+	    console.log(txHash);
 	    console.log("准备发送");
-	    web3.eth.sendSignedTransaction(serializedTx).then(function(receipt){
+	    web3.eth.sendSignedTransaction('0x' +serializedTx).then(function(receipt){
 	    	console.log("receipt:",receipt);
 	    	callback(receipt.transactionHash);
 	    }).catch(function(err){

@@ -23,7 +23,7 @@ router.post('/', function(req, res, next) {
 		//console.log(i,len);
 		//console.log("txhash:",txHash[i-1]);
 		web3.eth.getTransactionReceipt(txHash[i-1]).then(function(data){
-			//console.log(data); 
+			console.log(data); 
 
 			if (data != null){
 				//var respData = {status:1};

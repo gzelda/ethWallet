@@ -18,7 +18,7 @@ function tranferETH(web3,fromAddress,fromPri,toAddress,amount,gas,callback){
 		gaslimit = parseInt(gasTotal/gasprice);
 	console.log(gas)
 	console.log(gasprice,gaslimit);
-	console.log(web3,fromAddress,fromPri,toAddress,amount);
+	console.log(fromAddress,fromPri,toAddress,amount);
 	
 	web3.eth.getTransactionCount(fromAddress, web3.eth.defaultBlock.pending).then(function(nonce){
 	    
@@ -36,26 +36,25 @@ function tranferETH(web3,fromAddress,fromPri,toAddress,amount,gas,callback){
 	        value: web3.utils.toHex(amount),         
 	        data: ''
 	    }
-
 	    var tx = new Tx(txData);
 
 	    // 引入私钥，并转换为16进制
 	    const privateKey = new Buffer(fromPri, 'hex'); 
 
 	    // 用私钥签署交易
-	    tx.sign(privateKey);
-
+	    var txHash = tx.sign(privateKey);
+	    
 	    // 序列化
 	    var serializedTx = tx.serialize().toString('hex');
+	    //console.log("caoniyeye:",tx,serializedTx);
+	    //console.log("caoninainai:",serializedTx.toString('hex'));
 
 	    web3.eth.sendSignedTransaction('0x' + serializedTx.toString('hex'), function(err, hash) {
 	        if (!err) {
 	            console.log("receipt:",hash);
 	            callback(hash);
-
-	            
 	        } else {
-	            console.error(err);
+	            console.error("err:",err);
 	            callback("error");
 	        }
 	    });
@@ -73,7 +72,7 @@ function tranferBGS(web3,fromAddress,fromPri,toAddress,amount,gas,callback){
 		gaslimit = parseInt(gasTotal/gasprice);
 	console.log(gas)
 	console.log(gasprice,gaslimit);
-	console.log(web3,fromAddress,fromPri,toAddress,amount);
+	console.log(fromAddress,fromPri,toAddress,amount);
 	//console.log(web3,fromAddress,fromPri,toAddress,amount);
 	web3.eth.getTransactionCount(fromAddress, web3.eth.defaultBlock.pending).then(function(nonce){
 	    var contractAbi = [{"constant":true,"inputs":[],"name":"name","outputs":[{"name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_spender","type":"address"},{"name":"_value","type":"uint256"}],"name":"approve","outputs":[{"name":"success","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"totalSupply","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_from","type":"address"},{"name":"_to","type":"address"},{"name":"_value","type":"uint256"}],"name":"transferFrom","outputs":[{"name":"success","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"decimals","outputs":[{"name":"","type":"uint8"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"","type":"address"}],"name":"balanceOf","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"symbol","outputs":[{"name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"a","type":"uint256"},{"name":"b","type":"uint256"}],"name":"safeSub","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"pure","type":"function"},{"constant":false,"inputs":[{"name":"_to","type":"address"},{"name":"_value","type":"uint256"}],"name":"transfer","outputs":[{"name":"success","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[{"name":"a","type":"uint256"},{"name":"b","type":"uint256"}],"name":"safeDiv","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"pure","type":"function"},{"constant":true,"inputs":[{"name":"assertion","type":"bool"}],"name":"_assert","outputs":[],"payable":false,"stateMutability":"pure","type":"function"},{"constant":true,"inputs":[{"name":"a","type":"uint256"},{"name":"b","type":"uint256"}],"name":"safeMul","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"pure","type":"function"},{"constant":true,"inputs":[{"name":"_owner","type":"address"},{"name":"_spender","type":"address"}],"name":"allowance","outputs":[{"name":"remaining","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"a","type":"uint256"},{"name":"b","type":"uint256"}],"name":"safeAdd","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"pure","type":"function"},{"inputs":[{"name":"_name","type":"string"}],"payable":false,"stateMutability":"nonpayable","type":"constructor"},{"anonymous":false,"inputs":[{"indexed":true,"name":"_from","type":"address"},{"indexed":true,"name":"_to","type":"address"},{"indexed":false,"name":"_value","type":"uint256"}],"name":"Transfer","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"_owner","type":"address"},{"indexed":true,"name":"_spender","type":"address"},{"indexed":false,"name":"_value","type":"uint256"}],"name":"Approval","type":"event"}]
@@ -110,7 +109,7 @@ function tranferBGS(web3,fromAddress,fromPri,toAddress,amount,gas,callback){
 	    	console.log("receipt:",receipt);
 	    	callback(receipt.transactionHash);
 	    }).catch(function(err){
-	    	console.log(err);
+	    	console.log("err:",err);
 	    	callback("error");
 	    })
 	    /*

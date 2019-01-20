@@ -27,7 +27,10 @@ router.post('/', function(req, res, next) {
 
 			if (data != null){
 				//var respData = {status:1};
-				result.push(1);
+				if (data.status == false)
+					result.push(2)
+				else
+					result.push(1);
 				
 				//res.send(respJson.generateJson(1,0,"打包成功",respData));
 			}

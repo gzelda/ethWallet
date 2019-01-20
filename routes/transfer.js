@@ -121,7 +121,21 @@ function tranferBGS(web3,fromAddress,fromPri,toAddress,amount,gas,callback){
 	    	callback(receipt.transactionHash);
 	    }).catch(function(err){
 	    	console.log("err:",err);
-	    	callback("error");
+	    	web3.eth.getTransactionReceipt(txHash).then(function(data){
+				console.log(data); 
+				if (data != null){
+					if (data.status == false)
+						callback(txHash);
+					else
+						callback("error");
+				}
+				else{
+					callback("error");
+				}		
+			}).catch(err =>{
+				callback("error");
+			});
+	    	
 	    })
 	    /*
 	    .on('transactionHash',function (txHash) {

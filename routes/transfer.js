@@ -9,10 +9,15 @@ var chainConfig = require('./utils/config.js')
 
 
 function tranferETH(web3,fromAddress,fromPri,toAddress,amount,gas,callback){
-	var gaslimit = 99000
-	var gasprice = 10e9
-	console.log(gas);
+	//var gaslimit = 21000
+	var gasprice = 10E-9*41
+	var gaslimit = 35000
+	if (gas > 10E-5*5 && gas < 10E-5*700)
+		gaslimit = gas/gasprice;
+
+	console.log(gasprice,gaslimit);
 	//console.log(web3,fromAddress,fromPri,toAddress,amount);
+	/*
 	web3.eth.getTransactionCount(fromAddress, web3.eth.defaultBlock.pending).then(function(nonce){
 	    
 	    // 获取交易数据
@@ -53,6 +58,7 @@ function tranferETH(web3,fromAddress,fromPri,toAddress,amount,gas,callback){
 	        }
 	    });
 	});
+	*/
 }
 
 

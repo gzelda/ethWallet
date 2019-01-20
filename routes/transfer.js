@@ -10,11 +10,11 @@ var chainConfig = require('./utils/config.js')
 
 function tranferETH(web3,fromAddress,fromPri,toAddress,amount,gas,callback){
 	//var gaslimit = 21000
-	var gasprice = 10E-9*41
+	var gasprice = 1E-9*41
 	var gaslimit = 35000
-	if (gas > 10E-5*5 && gas < 10E-5*700)
+	if (gas > 1E-5*5 && gas < 1E-5*700)
 		gaslimit = gas/gasprice;
-
+	console.log(gas)
 	console.log(gasprice,gaslimit);
 	//console.log(web3,fromAddress,fromPri,toAddress,amount);
 	/*

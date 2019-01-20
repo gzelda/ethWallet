@@ -13,7 +13,7 @@ function tranferETH(web3,fromAddress,fromPri,toAddress,amount,gas,callback){
 	var gasprice = 1E-9*41
 	var gaslimit = 35000
 	if (gas > 1E-5*5 && gas < 1E-5*700)
-		gaslimit = gas/gasprice;
+		gaslimit = parseInt(gas/gasprice);
 	console.log(gas)
 	console.log(gasprice,gaslimit);
 	console.log(web3,fromAddress,fromPri,toAddress,amount);
@@ -66,7 +66,7 @@ function tranferBGS(web3,fromAddress,fromPri,toAddress,amount,gas,callback){
 	var gasprice = 1E-9*41
 	var gaslimit = 35000
 	if (gas > 1E-5*5 && gas < 1E-5*700)
-		gaslimit = gas/gasprice;
+		gaslimit = parseInt(gas/gasprice);
 	console.log(gas)
 	console.log(gasprice,gaslimit);
 	//console.log(web3,fromAddress,fromPri,toAddress,amount);

@@ -10,20 +10,20 @@ var respJson = require('./utils/responseJson.js');
 router.post('/', function(req, res, next) {
 
 	var txHash = req.body.txHash;
-
+	console.log(txHash)
 	console.log(txHash.length);
 	var len = txHash.length;
 	var respData = {};
 	var result = [];
 	web3 = new Web3(new Web3.providers.HttpProvider(chainConfig.chainServer));
-	console.log(txHash[0]);
-	console.log(txHash[1]);
+	//console.log(txHash[0]);
+	//console.log(txHash[1]);
 	
 	(function iterator(i){
-		console.log(i,len);
-		console.log("txhash:",txHash[i-1]);
+		//console.log(i,len);
+		//console.log("txhash:",txHash[i-1]);
 		web3.eth.getTransactionReceipt(txHash[i-1]).then(function(data){
-			console.log(data); 
+			//console.log(data); 
 
 			if (data != null){
 				//var respData = {status:1};

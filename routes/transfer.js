@@ -20,10 +20,10 @@ function tranferETH(web3,fromAddress,fromPri,toAddress,amount,gas,callback){
 	console.log(gas)
 	console.log(gasprice,gaslimit);
 	
-	
-	web3.eth.getTransactionCount(fromAddress, web3.eth.defaultBlock.pending).then(function(nonce){
+	web3.eth.getTransactionCount(fromAddress).then(function(nonce){
 	    console.log("！！！！！！！：",fromAddress,fromPri,toAddress,amount,nonce);
 	    // 获取交易数据
+
 	    //var newNonce = nonce + 1;
 
 	    var txData = {
@@ -60,7 +60,9 @@ function tranferETH(web3,fromAddress,fromPri,toAddress,amount,gas,callback){
 	    web3.eth.sendSignedTransaction('0x' + serializedTx.toString('hex'), function(err, hash) {
 	        if (!err) {
 	            console.log("receipt:",hash);
-	            callback(hash);
+	            var data = {txHash:hash,nonce:nonce}
+	            console.log(data)
+	            callback(data);
 	        } else {
 	            console.error("err:",err);
 	            callback("error");
@@ -82,7 +84,7 @@ function tranferBGS(web3,fromAddress,fromPri,toAddress,amount,gas,callback){
 	console.log(gasprice,gaslimit);
 	console.log(fromAddress,fromPri,toAddress,amount);
 	//console.log(web3,fromAddress,fromPri,toAddress,amount);
-	web3.eth.getTransactionCount(fromAddress, web3.eth.defaultBlock.pending).then(function(nonce){
+	web3.eth.getTransactionCount(fromAddress).then(function(nonce){
 	    var contractAbi = [{"constant":true,"inputs":[],"name":"name","outputs":[{"name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_spender","type":"address"},{"name":"_value","type":"uint256"}],"name":"approve","outputs":[{"name":"success","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"totalSupply","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_from","type":"address"},{"name":"_to","type":"address"},{"name":"_value","type":"uint256"}],"name":"transferFrom","outputs":[{"name":"success","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"decimals","outputs":[{"name":"","type":"uint8"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"","type":"address"}],"name":"balanceOf","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"symbol","outputs":[{"name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"a","type":"uint256"},{"name":"b","type":"uint256"}],"name":"safeSub","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"pure","type":"function"},{"constant":false,"inputs":[{"name":"_to","type":"address"},{"name":"_value","type":"uint256"}],"name":"transfer","outputs":[{"name":"success","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[{"name":"a","type":"uint256"},{"name":"b","type":"uint256"}],"name":"safeDiv","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"pure","type":"function"},{"constant":true,"inputs":[{"name":"assertion","type":"bool"}],"name":"_assert","outputs":[],"payable":false,"stateMutability":"pure","type":"function"},{"constant":true,"inputs":[{"name":"a","type":"uint256"},{"name":"b","type":"uint256"}],"name":"safeMul","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"pure","type":"function"},{"constant":true,"inputs":[{"name":"_owner","type":"address"},{"name":"_spender","type":"address"}],"name":"allowance","outputs":[{"name":"remaining","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"a","type":"uint256"},{"name":"b","type":"uint256"}],"name":"safeAdd","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"pure","type":"function"},{"inputs":[{"name":"_name","type":"string"}],"payable":false,"stateMutability":"nonpayable","type":"constructor"},{"anonymous":false,"inputs":[{"indexed":true,"name":"_from","type":"address"},{"indexed":true,"name":"_to","type":"address"},{"indexed":false,"name":"_value","type":"uint256"}],"name":"Transfer","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"_owner","type":"address"},{"indexed":true,"name":"_spender","type":"address"},{"indexed":false,"name":"_value","type":"uint256"}],"name":"Approval","type":"event"}]
 	    var contractAddress = chainConfig.bgsAddress;
 	    let myContract = new web3.eth.Contract(contractAbi, contractAddress);
@@ -124,8 +126,12 @@ function tranferBGS(web3,fromAddress,fromPri,toAddress,amount,gas,callback){
 	    	web3.eth.getTransactionReceipt(txHash).then(function(data){
 				console.log(data); 
 				if (data != null){
-					if (data.status == false)
-						callback(txHash);
+					if (data.status == false){
+
+						var data = {txHash:hash,nonce:nonce}
+	            		console.log(data)
+						callback(data);
+					}
 					else
 						callback("error");
 				}
@@ -176,26 +182,32 @@ router.post('/', function(req, resp, next) {
 		else{
 			if (type == 0){
 				tranferETH(web3,fromAddress,priKey,toAddress,amount*1.0*10e17,gasPrice,function(data){
+					console.log(data)
+					
 					if (data != "error"){
-						var respData = respJson.generateJson(1,0,"请求成功",{txHash:data});
+						var respData = respJson.generateJson(1,0,"请求成功",data);
 						resp.send(respData);
 					}
 					else{
 						var respData = respJson.generateJson(0,0,"转账失败");
 						resp.send(respData);
 					}
+					
 				})			
 			}
 			else if (type == 1){
 				tranferBGS(web3,fromAddress,priKey,toAddress,amount*1.0*10e3,gasPrice,function(data){
+					console.log(data)
+					
 					if (data != "error"){
-						var respData = respJson.generateJson(1,0,"请求成功",{txHash:data});
+						var respData = respJson.generateJson(1,0,"请求成功",data);
 						resp.send(respData);
 					}
 					else{
 						var respData = respJson.generateJson(0,0,"转账失败");
 						resp.send(respData);
 					}
+					
 				})
 				//0x4743dd93d571c666a9153c54b136e10541e8d622 kovan bgs 合约地址
 			}

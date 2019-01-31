@@ -128,7 +128,7 @@ function tranferBGS(web3,fromAddress,fromPri,toAddress,amount,gas,callback){
 				if (data != null){
 					if (data.status == false){
 
-						var data = {txHash:hash,nonce:nonce}
+						var data = {txHash:txHash,nonce:nonce}
 	            		console.log(data)
 						callback(data);
 					}

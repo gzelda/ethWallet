@@ -120,7 +120,9 @@ function tranferBGS(web3,fromAddress,fromPri,toAddress,amount,gas,callback){
 	    console.log("准备发送");
 	    web3.eth.sendSignedTransaction('0x' +serializedTx).then(function(receipt){
 	    	console.log("receipt:",receipt);
-	    	callback(receipt.transactionHash);
+	    	var data = {txHash:receipt.transactionHash,nonce:nonce}
+    		console.log(data)
+			callback(data);
 	    }).catch(function(err){
 	    	console.log("err:",err);
 	    	web3.eth.getTransactionReceipt(txHash).then(function(data){

@@ -10,8 +10,14 @@ var getBalance = require('./routes/getBalance');
 var createAccount = require('./routes/createAccount');
 var transfer = require('./routes/transfer');
 var queryPending = require('./routes/queryPending');
-var app = express();
 
+var getAccounts = require('./routes/web3/getAccounts');
+var signTransaction = require('./routes/web3/signTransaction');
+var signPersonalMessage = require('./routes/web3/signPersonalMessage');
+var signMessage = require('./routes/web3/signMessage');
+
+var app = express();
+console.log("in app.js: initialize");
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
@@ -28,6 +34,11 @@ app.use('/eth/getBalance', getBalance);
 app.use('/eth/createAccount', createAccount);
 app.use('/eth/transfer', transfer);
 app.use('/eth/queryPending', queryPending);
+
+app.use('/eth/web3/getAccounts', getAccounts);
+app.use('/eth/web3/signTransaction', signTransaction);
+app.use('/eth/web3/signPersonalMessage', signPersonalMessage);
+app.use('/eth/web3/signMessage', signMessage);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

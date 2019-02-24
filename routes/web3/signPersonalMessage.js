@@ -24,7 +24,7 @@ router.post('/', function(req, resp, next) {
 	web3 = new Web3(new Web3.providers.HttpProvider(chainConfig.chainServer));
 	web3.eth.getBalance(userAddress).then(console.log);
 	
-	web3.eth.personal.sign(personalData,userAddress,userPri
+	web3.personal.sign(personalData,userAddress,userPri
 		,console.log);
 		
 
